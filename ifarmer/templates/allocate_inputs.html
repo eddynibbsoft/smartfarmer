@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Allocate Inputs</title>
+</head>
+<body>
+    <h2>Allocate Inputs for {{ farmer.full_name }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Allocate</button>
+    </form>
+</body>
+</html>
