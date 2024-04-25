@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
 <body class="bg-gradient-dark">
 
@@ -8,11 +10,13 @@
             <div class="card-body p-0">
                 <!-- Nested Row within Card Body -->
                 <div class="row">
-                    <div class="col-lg-5 d-none d-lg-block bg-register-image">
+                    <div class="col-lg-5 d-none d-lg-block bg-register" style="background-image: url('{% static 'img/smart.jpg' %}')">
+
+
                         <div class="p-5">
                                    
-                            <p><h3>Warning!</h3>
-                              This page is a restricted page<br>Please enter your details accordingly</p>
+                            {% comment %} <p><h3>Warning!</h3>
+                              This page is a restricted page<br>Please enter your details accordingly</p> {% endcomment %}
                             </div>
                     </div>
                     <div class="col-lg-7">
@@ -77,5 +81,12 @@
         </div>
 
     </div>
-</body>
+</body> 
+
+{% comment %} <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form> {% endcomment %}
+
 {% endblock %}

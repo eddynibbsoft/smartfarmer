@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{%load static%}
 {% block content %}
 <body class="bg-gradient-dark">
 
@@ -13,7 +14,7 @@
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image">
+                            <div class="col-lg-5 d-none d-lg-block bg-login" style="background-color:cornwhite;">
                                 <div class="p-5">
                                    
                                 <p><h3>Hello,</h3>
@@ -56,3 +57,8 @@
     </div>
 </body>
 {% endblock %}
+{% comment %} <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form> {% endcomment %}

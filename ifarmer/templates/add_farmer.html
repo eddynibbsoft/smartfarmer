@@ -1,14 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Farmer</title>
-</head>
-<body>
-    <h2>Add Farmer</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
-</body>
-</html>
+<!-- add_farmer.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Add Farmer</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}

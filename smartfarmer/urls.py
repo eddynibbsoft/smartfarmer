@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin_registration/', views.admin_registration, name='admin_registration'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('add_farmer/', views.add_farmer, name='add_farmer'),
-    path('allocate_inputs/<int:farmer_id>/', views.allocate_inputs, name='allocate_inputs'),
-    path('predict_yield/<int:farmer_id>/', views.predict_yield, name='predict_yield'),
+    # path('allocate_inputs/<int:farmer_id>/', views.allocate_inputs, name='allocate_inputs'),
+    # path('predict_yield/<int:farmer_id>/', views.predict_yield, name='predict_yield'),
     path('logout/', views.admin_logout, name='admin_logout'),
 ]
