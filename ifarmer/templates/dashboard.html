@@ -46,7 +46,7 @@
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Manage Farmers:</h6>
                             <a class="collapse-item" href="{% url 'add_farmer' %}">Add New</a>
-                            <a class="collapse-item" href="#">Edit Profile</a>
+                            <a class="collapse-item" href="{% url 'show_farmers' %}">Registered Farmers</a>
                         </div>
                     </div>
                 </li>
@@ -167,7 +167,7 @@
                             <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-dark shadow-sm"><i
                                     class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                         </div>
-    
+                       
                         <!-- Content Row -->
                         <div class="row">
     
@@ -244,7 +244,8 @@
                                             <div class="col mr-2">
                                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                     Registered Farmers</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                                                <!-- Replace the placeholder with the count of registered farmers -->
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ num_registered_farmers }}</div>
                                             </div>
                                             <div class="col-auto">
                                                 <i class="fas fa-comments fa-2x text-gray-300"></i>
@@ -253,7 +254,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                            
     
                         <!-- Content Row -->
     
@@ -454,5 +455,8 @@
              </div>
          </div>
   {% endcomment %}
+
         </body>
 {% endblock %}
+
+

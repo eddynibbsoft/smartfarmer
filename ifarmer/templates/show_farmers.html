@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>List of Farmers</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Region</th>
+          <th>Land Size</th>
+          <th>Crop Type</th>
+          <th>Address</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for farmer in farmers %}
+          <tr>
+            <td>{{ farmer.full_name }}</td>
+            <td>{{ farmer.region }}</td>
+            <td>{{ farmer.land_size }}</td>
+            <td>{{ farmer.crop_type }}</td>
+            <td>{{ farmer.address }}</td>
+            <td>{{ farmer.contact }}</td>
+            <td>
+              <a href="{% url 'edit_farmer' farmer.id %}" class="btn btn-sm btn-primary">Edit</a>
+              <a href="{% url 'delete_farmer' farmer.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
