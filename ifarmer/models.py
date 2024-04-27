@@ -8,19 +8,21 @@ from django.db import models
 
 class Farmer(models.Model):
     full_name = models.CharField(max_length=100)
-    region = models.CharField(max_length=100)
-    land_size = models.FloatField()
+    region = models.CharField(max_length=10)
+    land_size = models.IntegerField()
     crop_type = models.CharField(max_length=100)
-    address = models.CharField(max_length=200)
+    soil_type = models.CharField(max_length=100)
+    rainfall = models.CharField(max_length=100)
+    temperature = models.CharField(max_length=100)
+    address = models.CharField(max_length=20)
     contact = models.CharField(max_length=20)
 
+class InputAllocation(models.Model):
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE)
+    seeds = models.IntegerField()
+    fertilizer = models.IntegerField()
+    pesticides = models.IntegerField()
 
-# class InputAllocation(models.Model):
-#     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='input_allocations')
-#     water = models.FloatField()
-#     fertilizer = models.FloatField()
-#     pesticides = models.FloatField()
-
-# class YieldPrediction(models.Model):
-#     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='yield_predictions')
-#     predicted_yield = models.FloatField()
+class YieldPrediction(models.Model):
+    farmer = models.OneToOneField(Farmer, on_delete=models.CASCADE)
+    predicted_yield = models.FloatField()

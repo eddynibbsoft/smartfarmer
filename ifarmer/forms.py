@@ -2,33 +2,43 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User  # Import Django's default User model
-# from .models import Farmer, InputAllocation
-from .models import Farmer
+from .models import Farmer, InputAllocation
+from django.contrib.postgres.fields import IntegerRangeField
+from ifarmer import models
 
 class FarmerForm(forms.ModelForm):
+    
+    VILLAGE_CHOICES = [(str(i), f"Village {i}") for i in range(1, 11)]  # Generate choices for villages 1 to 10
+    
+    REGION_CHOICES = [(str(x), f"Region {x}") for x in range(1, 6)]
+    
+    SOIL_TYPE_CHOICES = [
+        ('Sandy Soil', 'Sandy Soil'),
+        ('Black Clay', 'Black Clay'),
+        ('Red Clay', 'Red Clay'),
+        ('Alluvial Soil', 'Alluvial Soil'),
+        ('Vlei Soil', 'Vlei Soil'),
+        ('Saline Soil', 'Saline Soil'),
+    ]
+
+    LAND_SIZE_CHOICES = [
+        (0, 'Less than 100'),
+        (1, '100 - 500'),
+        (2, '501 - 1000'),
+        (3, '1001 - 5000'),
+        (4, '5001 - 10000'),
+        (5, 'Above 10 000'),
+        # Add more choices as needed
+    ]
+
+    address = forms.ChoiceField(choices=VILLAGE_CHOICES)
+    region = forms.ChoiceField(choices=REGION_CHOICES)
+    soil_type = forms.ChoiceField(choices=SOIL_TYPE_CHOICES)
+    land_size = forms.ChoiceField(choices=LAND_SIZE_CHOICES)
+
     class Meta:
         model = Farmer
-        fields = ['full_name', 'region', 'land_size', 'crop_type', 'address', 'contact']
-
-
-# class InputAllocationForm(forms.ModelForm):
-#     class Meta:
-#         model = InputAllocation
-#         fields = ['water', 'fertilizer', 'pesticides']
-
-# class AdminRegistrationForm(forms.ModelForm):
-#     email = forms.EmailField(max_length=254, help_text='Required. Enter a valid email address.')
-#     password1 = forms.CharField(widget=forms.PasswordInput, label="Password")
-#     password2 = forms.CharField(widget=forms.PasswordInput, label="Password confirmation")
-
-#     class Meta:
-#         model = User  # Use Django's default User model
-#         fields = ['username', 'email', 'password1', 'password2', 'first_name', 'last_name']
-
-# class AdminLoginForm(AuthenticationForm):
-#     class Meta:
-#         fields = ['username', 'password']
-# forms.py
+        fields = ['full_name', 'region', 'land_size', 'crop_type', 'soil_type', 'rainfall', 'temperature', 'address', 'contact']
 
 
 class RegistrationForm(UserCreationForm):
@@ -43,3 +53,9 @@ class RegistrationForm(UserCreationForm):
 class CustomAuthenticationForm(AuthenticationForm):
     # Add customizations if needed
     pass
+
+
+class InputAllocationForm(forms.ModelForm):
+    class Meta:
+        model = InputAllocation
+        fields = ['seeds', 'fertilizer', 'pesticides']
