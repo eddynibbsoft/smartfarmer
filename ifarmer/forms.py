@@ -31,10 +31,21 @@ class FarmerForm(forms.ModelForm):
         # Add more choices as needed
     ]
 
+    RAINFALL_CHOICES = [
+       
+        (1000, 'more than 1000mm per annum'),
+        (950, '750 - 1000mm per annum'),
+        (800, '650 - 800mm per annum'),
+        (650, '450 - 650mm per annum'),
+        (600, 'below 650mm per annum'),
+        # Add more choices as needed
+    ]
+
     address = forms.ChoiceField(choices=VILLAGE_CHOICES)
     region = forms.ChoiceField(choices=REGION_CHOICES)
     soil_type = forms.ChoiceField(choices=SOIL_TYPE_CHOICES)
     land_size = forms.ChoiceField(choices=LAND_SIZE_CHOICES)
+    rainfall = forms.ChoiceField(choices=RAINFALL_CHOICES)
 
     class Meta:
         model = Farmer
