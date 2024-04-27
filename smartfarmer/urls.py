@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from ifarmer import views
+from ifarmer import urls
 
 
 urlpatterns = [
@@ -30,6 +31,8 @@ urlpatterns = [
     path('show_farmers/', views.show_farmers, name='show_farmers'),
     path('edit_farmer/<int:farmer_id>/', views.edit_farmer, name='edit_farmer'),
     path('delete_farmer/<int:farmer_id>/', views.delete_farmer, name='delete_farmer'),
+    path('cluster/', views.cluster_farmers, name='cluster_farmers'),
+    path('cluster_results/', views.cluster_farmers, name='cluster_results'),
     path('allocate_inputs/<int:farmer_id>/', views.allocate_inputs, name='allocate_inputs'),
     # path('predict_yield/<int:farmer_id>/', views.predict_yield, name='predict_yield'),
     path('logout/', views.admin_logout, name='admin_logout'),

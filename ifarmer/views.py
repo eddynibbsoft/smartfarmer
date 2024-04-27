@@ -6,6 +6,7 @@ from .forms import RegistrationForm
 from .models import Farmer
 from .forms import CustomAuthenticationForm
 from .forms import InputAllocationForm
+from collections import Counter
 
 from sklearn.cluster import KMeans
 
@@ -63,27 +64,30 @@ def delete_farmer(request, farmer_id):
     return render(request, 'confirm_delete_farmer.html', {'farmer': farmer})
 
 
-
-
 def cluster_farmers(request):
     # Retrieve farmer data from the database
     farmers = Farmer.objects.all()
-    farmer_data = [[farmer.land_size, farmer.address] for farmer in farmers]
+    farmer_data = [[farmer.address] for farmer in farmers]
 
     # Perform K-means clustering
-    kmeans = KMeans(n_clusters=10)  # Assuming 10 villages
+    num_clusters = 10  # Assuming 10 villages
+    kmeans = KMeans(n_clusters=num_clusters)
     cluster_labels = kmeans.fit_predict(farmer_data)
 
-    # Add cluster labels to farmer objects or store them separately
-    for idx, farmer in enumerate(farmers):
-        farmer.cluster_label = cluster_labels[idx]
-        farmer.save()
+    # Group farmers by cluster label
+    clustered_farmers = {}
+    for idx, label in enumerate(cluster_labels):
+        if label not in clustered_farmers:
+            clustered_farmers[label] = []
+        clustered_farmers[label].append(farmers[idx])
 
     # Pass clustering results to the template
     context = {
-        'farmers': farmers,
+        'clustered_farmers': clustered_farmers,
+        'num_clusters': num_clusters,  # Add the number of clusters to the context
     }
     return render(request, 'cluster_results.html', context)
+
 
 
 def allocate_inputs(request, farmer_id):

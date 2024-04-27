@@ -12,6 +12,8 @@ urlpatterns = [
     path('show_farmers/', show_farmers, name='show_farmers'),
     path('edit_farmer/<int:farmer_id>/', edit_farmer, name='edit_farmer'),
     path('delete_farmer/<int:farmer_id>/', delete_farmer, name='delete_farmer'),
+    path('cluster/', views.cluster_farmers, name='cluster_farmers'),
+    path('cluster_results/', views.cluster_farmers, name='cluster_results'),
     path('allocate_inputs/<int:farmer_id>/', views.allocate_inputs, name='allocate_inputs'),
     # path('predict_yield/<int:farmer_id>/', views.predict_yield, name='predict_yield'),
    
