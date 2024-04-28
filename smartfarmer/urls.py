@@ -18,7 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from ifarmer import views
-from ifarmer import urls
+from ifarmer.views import upload_dataset
+from ifarmer.views import *
 
 
 urlpatterns = [
@@ -33,6 +34,13 @@ urlpatterns = [
     path('delete_farmer/<int:farmer_id>/', views.delete_farmer, name='delete_farmer'),
     path('cluster/', views.cluster_farmers, name='cluster_farmers'),
     path('cluster_results/', views.cluster_farmers, name='cluster_results'),
+    path('upload/', upload_dataset, name='upload_dataset'),
+    path('view-uploaded-datasets/', view_uploaded_datasets, name='view_uploaded_datasets'),
+    path('dataset/<int:pk>/', dataset_detail, name='dataset_detail'),
+    # path('dataset/create/', dataset_create, name='dataset_create'),
+    path('dataset/<int:pk>/update/', dataset_update, name='dataset_update'),
+    path('dataset/<int:pk>/delete/', dataset_delete, name='dataset_delete'),
+    path('train_model/', train_model, name='train_model'),
     path('allocate_inputs/<int:farmer_id>/', views.allocate_inputs, name='allocate_inputs'),
     # path('predict_yield/<int:farmer_id>/', views.predict_yield, name='predict_yield'),
     path('logout/', views.admin_logout, name='admin_logout'),

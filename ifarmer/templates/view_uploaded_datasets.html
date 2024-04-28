@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Uploaded Datasets</h1>
+    <ul>
+        {% for dataset in datasets %}
+            <li>{{ dataset.name }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

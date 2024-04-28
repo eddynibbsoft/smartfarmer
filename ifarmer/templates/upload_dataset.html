@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Upload Dataset</h1>
+    <p class="mb-4">Please select a dataset file to upload.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-dark">Upload Form</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">Name:</label>
+                    {{ form.name }}
+                </div>
+                <div class="form-group">
+                    <label for="id_file">File:</label>
+                    {{ form.file }}
+                </div>
+                <button type="submit" class="btn btn-dark">Upload</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

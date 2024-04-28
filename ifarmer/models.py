@@ -17,6 +17,14 @@ class Farmer(models.Model):
     address = models.CharField(max_length=20)
     contact = models.CharField(max_length=20)
 
+class Dataset(models.Model):
+    name = models.CharField(max_length=100)
+    file = models.FileField(upload_to='datasets/')
+    
+
+    def __str__(self):
+        return self.name
+
 class InputAllocation(models.Model):
     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE)
     seeds = models.IntegerField()
@@ -26,3 +34,4 @@ class InputAllocation(models.Model):
 class YieldPrediction(models.Model):
     farmer = models.OneToOneField(Farmer, on_delete=models.CASCADE)
     predicted_yield = models.FloatField()
+
