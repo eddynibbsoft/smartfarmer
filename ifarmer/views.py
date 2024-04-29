@@ -10,7 +10,8 @@ import pandas as pd
 from django.urls import reverse
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-
+from django.http import JsonResponse
+import json
 
 
 @login_required
@@ -166,13 +167,7 @@ def admin_logout(request):
     logout(request)
     return redirect('admin_login')
 
-
-
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-
-def train_model(request, dataset_id):
+def train_model(request):
     # Assuming you have logic to retrieve the dataset file path based on the dataset ID
     # For now, using a placeholder file path
     file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
@@ -181,7 +176,7 @@ def train_model(request, dataset_id):
         # Read the dataset
         df = pd.read_csv(file_name)
     except Exception as e:
-        return {'error': str(e)}  # Return error message if dataset loading fails
+        return JsonResponse({'error': str(e)})  # Return error message if dataset loading fails
     
     # Define the crop type choices
     CROP_TYPE_CHOICES = [
@@ -215,9 +210,9 @@ def train_model(request, dataset_id):
     trained_models = {}
     
     # Iterate over each crop type
-    for crop_id, crop_name in CROP_TYPE_CHOICES:
+    for crop_id, crop_type in CROP_TYPE_CHOICES:
         # Filter the dataset for the current crop type
-        df_crop = df[df['crop_type'] == crop_name]
+        df_crop = df[df['crop_id'] == crop_id]
         
         # Data preprocessing
         X = df_crop[['land_size']]
@@ -234,9 +229,16 @@ def train_model(request, dataset_id):
         score = model.score(X_test, y_test)
         
         # Store the trained model and its score in the dictionary
-        trained_models[crop_name] = {'model': model, 'score': score}
+        trained_models[crop_type] = {
+            'coefficients': model.coef_.tolist(),  # Convert coefficients to a list
+            'intercept': model.intercept_,
+            'score': score
+        }
     
-    return trained_models
+    # Serialize trained_models to JSON
+    json_trained_models = json.dumps(trained_models)
+    
+    return render(request, 'trained_models.html', {'trained_models': trained_models})
 
 def predict_inputs_allocation(request):
     if request.method == 'POST':

@@ -1,0 +1,36 @@
+<!-- trained_models.html -->
+{% extends 'base.html' %}
+
+{% block title %}
+    Trained Models
+{% endblock %}
+
+{% block content %}
+<
+<div class="container">
+    <h1 class="mt-5 mb-4">Trained Models</h1>
+    <div class="row">
+        {% for crop_type, model_info in trained_models.items %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">{{ crop_type }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Coefficients: {{ model_info.coefficients }}</p>
+                        <p class="card-text">Intercept: {{ model_info.intercept }}</p>
+                        <p class="card-text">Score: {{ model_info.score }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+   
+</div>
+<div class="mt-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-light">Back to Dashboard</a>
+  </div>
+<!-- Include Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-DBf4r7IfmynxUJhjiT/w3thzjMk0vbH4W/11gMYrWQPVo1ohHpe+/rsZUOAg4RxM" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-o3+fLDbALo0IpB10z5+PBibP6a5o5oZVIGzrjLw6JLZY5Ccr5voU5c4pBk6c5gyK" crossorigin="anonymous"></script>
+{% endblock %}
