@@ -17,6 +17,7 @@ class Farmer(models.Model):
     address = models.CharField(max_length=20)
     contact = models.CharField(max_length=20)
     seed_allocation = models.FloatField(default=0) 
+    output = models.FloatField(default=0)
 
 class Dataset(models.Model):
     name = models.CharField(max_length=100)

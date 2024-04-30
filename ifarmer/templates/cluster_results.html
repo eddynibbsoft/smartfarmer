@@ -14,7 +14,7 @@
                         <ul class="list-unstyled">
                             {% for farmer in farmers %}
                             <li>
-                                {{ farmer.full_name }} - Village {{ farmer.address }} - {{ farmer.crop_type }} - {{ farmer.contact }} - Seed Allocation: {{ farmer.seed_allocation }}
+                                {{ farmer.full_name }} - Village {{ farmer.address }} - {{ farmer.crop_type }} - {{ farmer.land_size }}ha - {{ farmer.contact }} - Seed Allocation: {{ farmer.seed_allocation }}g - Output Prediction: {{ farmer.output_prediction }}g
                             </li>
                             {% endfor %}
                         </ul>

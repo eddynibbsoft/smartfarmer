@@ -15,59 +15,63 @@ import json
 import os
 import joblib
 import numpy as np
-from django.shortcuts import render
-from .models import Farmer
+from sklearn.ensemble import RandomForestRegressor
 # from .forms import SeedAllocationForm  # Import your SeedAllocationForm
 
 
 def cluster_farmers(request):
     # Retrieve farmer data from the database
     farmers = Farmer.objects.all()
+    farmer_data = [[farmer.address] for farmer in farmers]
 
     # Perform K-means clustering
     num_clusters = 10  # Assuming 10 villages
-    # Your KMeans clustering code here...
+    kmeans = KMeans(n_clusters=num_clusters)
+    cluster_labels = kmeans.fit_predict(farmer_data)
 
-    # Assuming you have a SeedAllocationForm for allocating seeds
-    form = SeedAllocationForm(request.POST or None)  # Assuming POST data contains input_allocation and crop_id
-    if form.is_valid():
-        input_allocation = form.cleaned_data['input_allocation']
-        crop_id = form.cleaned_data['crop_id']
+    # Group farmers by cluster label
+    clustered_farmers = {}
+    for idx, label in enumerate(cluster_labels):
+        if label not in clustered_farmers:
+            clustered_farmers[label] = []
+        clustered_farmers[label].append(farmers[idx])
 
-        # Load the dataset for the given crop type
-        file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
-        try:
-            df = pd.read_csv(file_name)
-            df_crop = df[df['crop_id'] == crop_id]
-        except FileNotFoundError:
-            return JsonResponse({'error': f'Dataset not found for crop ID {crop_id}'})
+    # Load the dataset
+    file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
+    try:
+        df = pd.read_csv(file_name)
+    except FileNotFoundError:
+        return JsonResponse({'error': 'Dataset not found'})
+
+    # Iterate over each crop type
+    for crop_id in df['crop_id'].unique():
+        # Filter the dataset for the current crop type
+        df_crop = df[df['crop_id'] == crop_id]
         
         # Data preprocessing
         X = df_crop[['land_size', 'crop_id']]
-        y = df_crop['input_allocation']
+        y = df_crop['output']  # Change to 'output' variable
         
-        # Train a linear regression model
+        # Train a Random Forest model
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model = LinearRegression()
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
         model.fit(X_train, y_train)
         
-        # Allocate seeds to farmers in each cluster
+        # Allocate output prediction to farmers in each cluster
         for cluster_label, farmers_in_cluster in clustered_farmers.items():
             for farmer in farmers_in_cluster:
-                # Predict seed allocation using the trained model
+                # Predict output using the trained model
                 farmer_features = [[farmer.land_size, crop_id]]
-                seed_allocation = model.predict(farmer_features)
-                farmer.seed_allocation = seed_allocation  # Assuming you have a field 'seed_allocation' in Farmer model
+                output_prediction = model.predict(farmer_features)
+                farmer.output_prediction = output_prediction  # Assuming you have a field 'output_prediction' in Farmer model
                 farmer.save()
 
     # Pass clustering results to the template
     context = {
         'clustered_farmers': clustered_farmers,
         'num_clusters': num_clusters,  # Add the number of clusters to the context
-        'form': form  # Pass the form to the template
     }
     return render(request, 'cluster_results.html', context)
-
 
 @login_required
 def dashboard(request):
@@ -124,11 +128,18 @@ def delete_farmer(request, farmer_id):
 def cluster_farmers(request):
     # Retrieve farmer data from the database
     farmers = Farmer.objects.all()
-    farmer_data = [[farmer.address] for farmer in farmers]
+
+    # Load the dataset
+    file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
+    try:
+        df = pd.read_csv(file_name)
+    except FileNotFoundError:
+        return JsonResponse({'error': 'Dataset not found'})
 
     # Perform K-means clustering
     num_clusters = 10  # Assuming 10 villages
     kmeans = KMeans(n_clusters=num_clusters)
+    farmer_data = [[farmer.address] for farmer in farmers]
     cluster_labels = kmeans.fit_predict(farmer_data)
 
     # Group farmers by cluster label
@@ -138,34 +149,37 @@ def cluster_farmers(request):
             clustered_farmers[label] = []
         clustered_farmers[label].append(farmers[idx])
 
-    # Load the dataset
-    file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
-    try:
-        df = pd.read_csv(file_name)
-    except FileNotFoundError:
-        return JsonResponse({'error': 'Dataset not found'})
+    # Train linear regression model for input allocation
+    input_allocation_model = LinearRegression()
+    X_input = df[['land_size', 'crop_id']]
+    y_input = df['input_allocation']
+    input_allocation_model.fit(X_input, y_input)
 
     # Iterate over each crop type
     for crop_id in df['crop_id'].unique():
         # Filter the dataset for the current crop type
         df_crop = df[df['crop_id'] == crop_id]
         
-        # Data preprocessing
-        X = df_crop[['land_size', 'crop_id']]
-        y = df_crop['input_allocation']
+        # Data preprocessing for output prediction
+        X_output = df_crop[['land_size', 'crop_id']]
+        y_output = df_crop['output']  # Change to 'output' variable
         
-        # Train a linear regression model
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model = LinearRegression()
-        model.fit(X_train, y_train)
+        # Train a Random Forest model for output prediction
+        output_model = RandomForestRegressor(n_estimators=100, random_state=42)
+        output_model.fit(X_output, y_output)
         
-        # Allocate seeds to farmers in each cluster
+        # Predict input allocation and output for each farmer in each cluster
         for cluster_label, farmers_in_cluster in clustered_farmers.items():
             for farmer in farmers_in_cluster:
-                # Predict seed allocation using the trained model
-                farmer_features = [[farmer.land_size, crop_id]]
-                seed_allocation = model.predict(farmer_features)
-                farmer.seed_allocation = seed_allocation  # Assuming you have a field 'seed_allocation' in Farmer model
+                # Predict input allocation using the linear regression model
+                input_features = [[farmer.land_size, crop_id]]
+                input_allocation_prediction = input_allocation_model.predict(input_features)[0]
+                farmer.input_allocation_prediction = input_allocation_prediction
+                
+                # Predict output using the Random Forest model
+                output_prediction = output_model.predict(input_features)[0]
+                farmer.output_prediction = output_prediction
+                
                 farmer.save()
 
     # Pass clustering results to the template
@@ -174,6 +188,7 @@ def cluster_farmers(request):
         'num_clusters': num_clusters,  # Add the number of clusters to the context
     }
     return render(request, 'cluster_results.html', context)
+
 
 
 
@@ -262,8 +277,6 @@ def admin_logout(request):
     logout(request)
     return redirect('admin_login')
 
-
-
 def train_model(request):
     # Assuming you have logic to retrieve the dataset file path based on the dataset ID
     # For now, using a placeholder file path
@@ -274,6 +287,16 @@ def train_model(request):
         df = pd.read_csv(file_name)
     except Exception as e:
         return JsonResponse({'error': str(e)})  # Return error message if dataset loading fails
+    
+    print("Dataset loaded successfully:", df.head())  # Add this line for debugging
+    
+    # Check if the 'output' field is present
+    if 'output' not in df.columns:
+        return JsonResponse({'error': "Output field not found in dataset."})  # Return error message if 'output' field is missing
+    
+    # Populate the output field if it's empty
+    if df['output'].isnull().any():
+        df['output'] = df['output'].fillna(0)  # You can replace 0 with the appropriate default value
     
     # Define the crop type choices
     CROP_TYPE_CHOICES = [
