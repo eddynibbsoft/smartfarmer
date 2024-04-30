@@ -12,6 +12,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from django.http import JsonResponse
 import json
+import os
+import joblib
+import numpy as np
 
 
 @login_required
@@ -92,6 +95,8 @@ def cluster_farmers(request):
     return render(request, 'cluster_results.html', context)
 
 
+
+
 def allocate_inputs(request, farmer_id):
     farmer = get_object_or_404(Farmer, pk=farmer_id)
     
@@ -101,19 +106,9 @@ def allocate_inputs(request, farmer_id):
             input_allocation = form.save(commit=False)
             input_allocation.farmer = farmer
             
-            # Implement input allocation logic based on land size
-            if farmer.land_size < 10:
-                input_allocation.seeds = 'Low'
-                input_allocation.fertilizer = 'Low'
-                input_allocation.pesticides = 'Low'
-            elif 10 <= farmer.land_size < 20:
-                input_allocation.seeds = 'Medium'
-                input_allocation.fertilizer = 'Medium'
-                input_allocation.pesticides = 'Medium'
-            else:
-                input_allocation.seeds = 'High'
-                input_allocation.fertilizer = 'High'
-                input_allocation.pesticides = 'High'
+            # Load the trained linear regression models
+            models_dir = 'trained_models'
+            input_allocation.seeds, input_allocation.fertilizer, input_allocation.pesticides = allocate_inputs_linear_regression(models_dir, farmer.land_size)
             
             input_allocation.save()
             return redirect('dashboard')  # Redirect to dashboard after successful allocation
@@ -121,6 +116,25 @@ def allocate_inputs(request, farmer_id):
         form = InputAllocationForm()
     
     return render(request, 'allocate_inputs.html', {'form': form, 'farmer': farmer})
+
+def allocate_inputs_linear_regression(models_dir, land_size):
+    seeds_model_path = os.path.join(models_dir, 'Seeds_model.pkl')
+    fertilizer_model_path = os.path.join(models_dir, 'Fertilizer_model.pkl')
+    pesticides_model_path = os.path.join(models_dir, 'Pesticides_model.pkl')
+    
+    # Load the trained linear regression models
+    seeds_model = joblib.load(seeds_model_path)
+    fertilizer_model = joblib.load(fertilizer_model_path)
+    pesticides_model = joblib.load(pesticides_model_path)
+    
+    # Predict input allocation using the models
+    seeds_allocation = seeds_model.predict([[land_size]])
+    fertilizer_allocation = fertilizer_model.predict([[land_size]])
+    pesticides_allocation = pesticides_model.predict([[land_size]])
+    
+    # You can round the allocations to integer values or apply any other post-processing
+    return seeds_allocation, fertilizer_allocation, pesticides_allocation
+
 
 
 
@@ -167,6 +181,8 @@ def admin_logout(request):
     logout(request)
     return redirect('admin_login')
 
+
+
 def train_model(request):
     # Assuming you have logic to retrieve the dataset file path based on the dataset ID
     # For now, using a placeholder file path
@@ -206,8 +222,9 @@ def train_model(request):
         (111, 'wheat'),
     ]
     
-    # Dictionary to store trained models and their scores
-    trained_models = {}
+    # Create a directory to save the trained models
+    models_dir = 'trained_models'
+    os.makedirs(models_dir, exist_ok=True)
     
     # Iterate over each crop type
     for crop_id, crop_type in CROP_TYPE_CHOICES:
@@ -225,20 +242,13 @@ def train_model(request):
         model = LinearRegression()
         model.fit(X_train, y_train)
         
-        # Model evaluation
-        score = model.score(X_test, y_test)
-        
-        # Store the trained model and its score in the dictionary
-        trained_models[crop_type] = {
-            'coefficients': model.coef_.tolist(),  # Convert coefficients to a list
-            'intercept': model.intercept_,
-            'score': score
-        }
+        # Save the trained model to disk
+        model_file_path = os.path.join(models_dir, f'{crop_type}_model.pkl')
+        joblib.dump(model, model_file_path)
     
-    # Serialize trained_models to JSON
-    json_trained_models = json.dumps(trained_models)
-    
-    return render(request, 'trained_models.html', {'trained_models': trained_models})
+    return JsonResponse({'message': 'Models trained and saved successfully.'})
+
+
 
 def predict_inputs_allocation(request):
     if request.method == 'POST':
