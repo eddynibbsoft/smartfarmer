@@ -38,9 +38,8 @@ class FarmerForm(forms.ModelForm):
         (1234, 'Tomatoes'),
         (1970, 'Unmanufactured tobacco'),
         (111, 'wheat'),
-      
     ]
-    
+
     SOIL_TYPE_CHOICES = [
         ('Sandy Soil', 'Sandy Soil'),
         ('Black Clay', 'Black Clay'),
@@ -51,12 +50,12 @@ class FarmerForm(forms.ModelForm):
     ]
 
     LAND_SIZE_CHOICES = [
-        (0, 'Less than 100'),
-        (1, '100 - 500'),
-        (2, '501 - 1000'),
-        (3, '1001 - 5000'),
-        (4, '5001 - 10000'),
-        (5, 'Above 10 000'),
+        (50, 'Less than 100'),
+        (100, '100 - 500'),
+        (500, '501 - 1000'),
+        (1000, '1001 - 5000'),
+        (5000, '5001 - 10000'),
+        (10000, 'Above 10 000'),
         # Add more choices as needed
     ]
 

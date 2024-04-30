@@ -15,6 +15,58 @@ import json
 import os
 import joblib
 import numpy as np
+from django.shortcuts import render
+from .models import Farmer
+# from .forms import SeedAllocationForm  # Import your SeedAllocationForm
+
+
+def cluster_farmers(request):
+    # Retrieve farmer data from the database
+    farmers = Farmer.objects.all()
+
+    # Perform K-means clustering
+    num_clusters = 10  # Assuming 10 villages
+    # Your KMeans clustering code here...
+
+    # Assuming you have a SeedAllocationForm for allocating seeds
+    form = SeedAllocationForm(request.POST or None)  # Assuming POST data contains input_allocation and crop_id
+    if form.is_valid():
+        input_allocation = form.cleaned_data['input_allocation']
+        crop_id = form.cleaned_data['crop_id']
+
+        # Load the dataset for the given crop type
+        file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
+        try:
+            df = pd.read_csv(file_name)
+            df_crop = df[df['crop_id'] == crop_id]
+        except FileNotFoundError:
+            return JsonResponse({'error': f'Dataset not found for crop ID {crop_id}'})
+        
+        # Data preprocessing
+        X = df_crop[['land_size', 'crop_id']]
+        y = df_crop['input_allocation']
+        
+        # Train a linear regression model
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+        
+        # Allocate seeds to farmers in each cluster
+        for cluster_label, farmers_in_cluster in clustered_farmers.items():
+            for farmer in farmers_in_cluster:
+                # Predict seed allocation using the trained model
+                farmer_features = [[farmer.land_size, crop_id]]
+                seed_allocation = model.predict(farmer_features)
+                farmer.seed_allocation = seed_allocation  # Assuming you have a field 'seed_allocation' in Farmer model
+                farmer.save()
+
+    # Pass clustering results to the template
+    context = {
+        'clustered_farmers': clustered_farmers,
+        'num_clusters': num_clusters,  # Add the number of clusters to the context
+        'form': form  # Pass the form to the template
+    }
+    return render(request, 'cluster_results.html', context)
 
 
 @login_required
@@ -69,7 +121,6 @@ def delete_farmer(request, farmer_id):
         return redirect('show_farmers')
     return render(request, 'confirm_delete_farmer.html', {'farmer': farmer})
 
-
 def cluster_farmers(request):
     # Retrieve farmer data from the database
     farmers = Farmer.objects.all()
@@ -86,6 +137,36 @@ def cluster_farmers(request):
         if label not in clustered_farmers:
             clustered_farmers[label] = []
         clustered_farmers[label].append(farmers[idx])
+
+    # Load the dataset
+    file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
+    try:
+        df = pd.read_csv(file_name)
+    except FileNotFoundError:
+        return JsonResponse({'error': 'Dataset not found'})
+
+    # Iterate over each crop type
+    for crop_id in df['crop_id'].unique():
+        # Filter the dataset for the current crop type
+        df_crop = df[df['crop_id'] == crop_id]
+        
+        # Data preprocessing
+        X = df_crop[['land_size', 'crop_id']]
+        y = df_crop['input_allocation']
+        
+        # Train a linear regression model
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+        
+        # Allocate seeds to farmers in each cluster
+        for cluster_label, farmers_in_cluster in clustered_farmers.items():
+            for farmer in farmers_in_cluster:
+                # Predict seed allocation using the trained model
+                farmer_features = [[farmer.land_size, crop_id]]
+                seed_allocation = model.predict(farmer_features)
+                farmer.seed_allocation = seed_allocation  # Assuming you have a field 'seed_allocation' in Farmer model
+                farmer.save()
 
     # Pass clustering results to the template
     context = {
@@ -232,7 +313,7 @@ def train_model(request):
         df_crop = df[df['crop_id'] == crop_id]
         
         # Data preprocessing
-        X = df_crop[['land_size']]
+        X = df_crop[['land_size', 'crop_id']]
         y = df_crop['input_allocation']
         
         # Train-test split

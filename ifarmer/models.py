@@ -16,6 +16,7 @@ class Farmer(models.Model):
     temperature = models.CharField(max_length=100)
     address = models.CharField(max_length=20)
     contact = models.CharField(max_length=20)
+    seed_allocation = models.FloatField(default=0) 
 
 class Dataset(models.Model):
     name = models.CharField(max_length=100)

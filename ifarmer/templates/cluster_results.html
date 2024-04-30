@@ -2,19 +2,23 @@
 {% block content %}
     <h1 class="mb-4">Cluster Results</h1>
     <p class="mb-4">Number of Clusters: {{ num_clusters }}</p>
-    <div class="row">
-        {% for cluster, farmers in clustered_farmers.items%}
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    Cluster {{ cluster }}
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        {% for farmer in farmers %}
-                        <li>{{ farmer.full_name }} - Village {{ farmer.address }} - {{ farmer.crop_type }} - {{ farmer.contact }}</li>
-                        {% endfor %}
-                    </ul>
+    <div class="container">
+        {% for cluster, farmers in clustered_farmers.items %}
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-light text-dark">
+                        Cluster {{ cluster }}
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            {% for farmer in farmers %}
+                            <li>
+                                {{ farmer.full_name }} - Village {{ farmer.address }} - {{ farmer.crop_type }} - {{ farmer.contact }} - Seed Allocation: {{ farmer.seed_allocation }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -22,5 +26,5 @@
     </div>
     <div class="mt-4">
         <a href="{% url 'dashboard' %}" class="btn btn-light">Back to Dashboard</a>
-      </div>
+    </div>
 {% endblock %}
