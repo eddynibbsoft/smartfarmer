@@ -26,5 +26,10 @@
     </div>
     <div class="mt-4">
         <a href="{% url 'dashboard' %}" class="btn btn-light">Back to Dashboard</a>
+        <!-- cluster_results.html -->
+        {% comment %} <a href="{% url 'generate_pdf' %}" class="btn btn-danger">Export to PDF</a> {% endcomment %}
+        <a href="{% url 'generate_excel' %}" class="btn btn-success">Export to Excel</a>
+
     </div>
+    
 {% endblock %}

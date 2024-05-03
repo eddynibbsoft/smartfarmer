@@ -44,4 +44,6 @@ urlpatterns = [
     path('allocate_inputs/<int:farmer_id>/', views.allocate_inputs, name='allocate_inputs'),
     # path('predict_yield/<int:farmer_id>/', views.predict_yield, name='predict_yield'),
     path('logout/', views.admin_logout, name='admin_logout'),
+    path('generate-pdf/', views.generate_pdf, name='generate_pdf'),
+    path('generate-excel/', views.generate_excel, name='generate_excel'),
 ]

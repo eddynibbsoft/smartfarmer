@@ -16,6 +16,13 @@ import os
 import joblib
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+import pdfkit
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from openpyxl import Workbook
+
+
+
 # from .forms import SeedAllocationForm  # Import your SeedAllocationForm
 
 
@@ -435,3 +442,59 @@ def dataset_delete(request, pk):
         dataset.delete()
         return redirect('view_uploaded_datasets')
     return render(request, 'dataset_confirm_delete.html', {'dataset': dataset})
+
+
+# export infor to pdf and excel
+
+
+def generate_pdf(request):
+    # Retrieve clustered farmers data from your database or other sources
+    clustered_farmers = {}  # Replace this with your logic to retrieve clustered farmers
+
+    # Render the HTML content using the template and context data
+    html_content = render_to_string('cluster_results.html', {'clustered_farmers': clustered_farmers})
+
+    # Convert HTML content to PDF
+    pdf = pdfkit.from_string(html_content, False)
+
+    # Create HTTP response with PDF content
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="cluster_results.pdf"'
+
+    return response
+
+
+def generate_excel(request):
+    # Retrieve clustered farmers data from your database or other sources
+    clustered_farmers = {}  # Replace this with your logic to retrieve clustered farmers
+
+    # Create a new Excel workbook and select the active worksheet
+    wb = Workbook()
+    ws = wb.active
+
+    # Write headers to the first row of the worksheet
+    headers = ['Full Name', 'Address', 'Crop Type', 'Land Size', 'Contact', 'Seed Allocation', 'Output Prediction']
+    ws.append(headers)
+
+    # Write data for each farmer to subsequent rows of the worksheet
+    for cluster, farmers in clustered_farmers.items():
+        for farmer in farmers:
+            row = [
+                farmer.full_name,
+                farmer.address,
+                farmer.crop_type,
+                farmer.land_size,
+                farmer.contact,
+                farmer.seed_allocation,
+                farmer.output_prediction
+            ]
+            ws.append(row)
+
+    # Create an HTTP response with the Excel file as an attachment
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="cluster_results.xlsx"'
+
+    # Save the workbook contents to the response
+    wb.save(response)
+
+    return response

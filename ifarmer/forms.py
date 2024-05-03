@@ -49,15 +49,15 @@ class FarmerForm(forms.ModelForm):
         ('Saline Soil', 'Saline Soil'),
     ]
 
-    LAND_SIZE_CHOICES = [
-        (50, 'Less than 100'),
-        (100, '100 - 500'),
-        (500, '501 - 1000'),
-        (1000, '1001 - 5000'),
-        (5000, '5001 - 10000'),
-        (10000, 'Above 10 000'),
-        # Add more choices as needed
-    ]
+    # LAND_SIZE_CHOICES = [
+    #     (50, 'Less than 100'),
+    #     (100, '100 - 500'),
+    #     (500, '501 - 1000'),
+    #     (1000, '1001 - 5000'),
+    #     (5000, '5001 - 10000'),
+    #     (10000, 'Above 10 000'),
+    #     # Add more choices as needed
+    # ]
 
     RAINFALL_CHOICES = [
        
@@ -73,7 +73,7 @@ class FarmerForm(forms.ModelForm):
     region = forms.ChoiceField(choices=REGION_CHOICES)
     soil_type = forms.ChoiceField(choices=SOIL_TYPE_CHOICES)
     crop_type = forms.ChoiceField(choices=CROP_TYPE_CHOICES)
-    land_size = forms.ChoiceField(choices=LAND_SIZE_CHOICES)
+    # land_size = forms.ChoiceField(choices=LAND_SIZE_CHOICES)
     rainfall = forms.ChoiceField(choices=RAINFALL_CHOICES)
 
     class Meta:
