@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="mt-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-light" style="float:right;">Back to Dashboard</a>
+    
+    <!-- cluster_results.html -->
+    {% comment %} <a href="{% url 'generate_pdf' %}" class="btn btn-danger">Export to PDF</a> {% endcomment %}
+    {% comment %} <a href="{% url 'generate_excel' %}" class="btn btn-success">Export to Excel</a> {% endcomment %}
+
+</div>
     <h1 class="mb-4">Cluster Results</h1>
     <p class="mb-4">Number of Clusters: {{ num_clusters }}</p>
+    
     <div class="container">
         {% for cluster, farmers in clustered_farmers.items %}
         <div class="row mb-4">
@@ -24,12 +33,6 @@
         </div>
         {% endfor %}
     </div>
-    <div class="mt-4">
-        <a href="{% url 'dashboard' %}" class="btn btn-light">Back to Dashboard</a>
-        <!-- cluster_results.html -->
-        {% comment %} <a href="{% url 'generate_pdf' %}" class="btn btn-danger">Export to PDF</a> {% endcomment %}
-        <a href="{% url 'generate_excel' %}" class="btn btn-success">Export to Excel</a>
-
-    </div>
+    
     
 {% endblock %}

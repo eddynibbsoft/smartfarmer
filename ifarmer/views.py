@@ -26,59 +26,59 @@ from openpyxl import Workbook
 # from .forms import SeedAllocationForm  # Import your SeedAllocationForm
 
 
-def cluster_farmers(request):
-    # Retrieve farmer data from the database
-    farmers = Farmer.objects.all()
-    farmer_data = [[farmer.address] for farmer in farmers]
+# def cluster_farmers(request):
+#     # Retrieve farmer data from the database
+#     farmers = Farmer.objects.all()
+#     farmer_data = [[farmer.address] for farmer in farmers]
 
-    # Perform K-means clustering
-    num_clusters = 10  # Assuming 10 villages
-    kmeans = KMeans(n_clusters=num_clusters)
-    cluster_labels = kmeans.fit_predict(farmer_data)
+#     # Perform K-means clustering
+#     num_clusters = 10  # Assuming 10 villages
+#     kmeans = KMeans(n_clusters=num_clusters)
+#     cluster_labels = kmeans.fit_predict(farmer_data)
 
-    # Group farmers by cluster label
-    clustered_farmers = {}
-    for idx, label in enumerate(cluster_labels):
-        if label not in clustered_farmers:
-            clustered_farmers[label] = []
-        clustered_farmers[label].append(farmers[idx])
+#     # Group farmers by cluster label
+#     clustered_farmers = {}
+#     for idx, label in enumerate(cluster_labels):
+#         if label not in clustered_farmers:
+#             clustered_farmers[label] = []
+#         clustered_farmers[label].append(farmers[idx])
 
-    # Load the dataset
-    file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
-    try:
-        df = pd.read_csv(file_name)
-    except FileNotFoundError:
-        return JsonResponse({'error': 'Dataset not found'})
+#     # Load the dataset
+#     file_name = 'datasets/crop_dataset.csv'  # Specify the file path here
+#     try:
+#         df = pd.read_csv(file_name)
+#     except FileNotFoundError:
+#         return JsonResponse({'error': 'Dataset not found'})
 
-    # Iterate over each crop type
-    for crop_id in df['crop_id'].unique():
-        # Filter the dataset for the current crop type
-        df_crop = df[df['crop_id'] == crop_id]
+#     # Iterate over each crop type
+#     for crop_id in df['crop_id'].unique():
+#         # Filter the dataset for the current crop type
+#         df_crop = df[df['crop_id'] == crop_id]
         
-        # Data preprocessing
-        X = df_crop[['land_size', 'crop_id']]
-        y = df_crop['output']  # Change to 'output' variable
+#         # Data preprocessing
+#         X = df_crop[['land_size', 'crop_id']]
+#         y = df_crop['output']  # Change to 'output' variable
         
-        # Train a Random Forest model
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
-        model.fit(X_train, y_train)
+#         # Train a Random Forest model
+#         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#         model = RandomForestRegressor(n_estimators=100, random_state=42)
+#         model.fit(X_train, y_train)
         
-        # Allocate output prediction to farmers in each cluster
-        for cluster_label, farmers_in_cluster in clustered_farmers.items():
-            for farmer in farmers_in_cluster:
-                # Predict output using the trained model
-                farmer_features = [[farmer.land_size, crop_id]]
-                output_prediction = model.predict(farmer_features)
-                farmer.output_prediction = output_prediction  # Assuming you have a field 'output_prediction' in Farmer model
-                farmer.save()
+#         # Allocate output prediction to farmers in each cluster
+#         for cluster_label, farmers_in_cluster in clustered_farmers.items():
+#             for farmer in farmers_in_cluster:
+#                 # Predict output using the trained model
+#                 farmer_features = [[farmer.land_size, crop_id]]
+#                 output_prediction = model.predict(farmer_features)
+#                 farmer.output_prediction = output_prediction  # Assuming you have a field 'output_prediction' in Farmer model
+#                 farmer.save()
 
-    # Pass clustering results to the template
-    context = {
-        'clustered_farmers': clustered_farmers,
-        'num_clusters': num_clusters,  # Add the number of clusters to the context
-    }
-    return render(request, 'cluster_results.html', context)
+#     # Pass clustering results to the template
+#     context = {
+#         'clustered_farmers': clustered_farmers,
+#         'num_clusters': num_clusters,  # Add the number of clusters to the context
+#     }
+#     return render(request, 'cluster_results.html', context)
 
 @login_required
 def dashboard(request):
@@ -181,10 +181,11 @@ def cluster_farmers(request):
                 # Predict input allocation using the linear regression model
                 input_features = [[farmer.land_size, crop_id]]
                 input_allocation_prediction = input_allocation_model.predict(input_features)[0]
-                farmer.input_allocation_prediction = input_allocation_prediction
+                farmer.seed_allocation = input_allocation_prediction
                 
                 # Predict output using the Random Forest model
                 output_prediction = output_model.predict(input_features)[0]
+                farmer.output = output_prediction
                 farmer.output_prediction = output_prediction
                 
                 farmer.save()
